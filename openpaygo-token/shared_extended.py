@@ -1,5 +1,6 @@
-import siphash
 import struct
+import siphash
+
 
 
 class OPAYGOSharedExtended(object):
