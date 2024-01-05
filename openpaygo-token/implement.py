@@ -4,7 +4,7 @@ from shared import OPAYGOShared
 from shared_extended import OPAYGOSharedExtended
 import codecs
 
-OPAYGOEncoder=OPAYGOEncoder()
+#OPAYGOEncoder=OPAYGOEncoder()
 
 class Device:
     def __init__(
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     device_data = {#creating a dictionary
         "serial_number": "ZZZ1",
         "starting_code": 123456789,
-        "key": "bc41ec9530f6dac86b1a29ab82edc5fb",
+        "key": b"bc41ec9530",                        #bc41ec9530f6dac86b1a29ab82edc5fb
         "restricted_digit_mode": False,
         "time_divider": 1,
         "token_count": 1,
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     device= Device(
         serial_number=device_data["serial_number"],
-        key=codecs.decode(device_data["key"], "hex"),
+        key=codecs.decode(device_data["key"], 'hex'),
         starting_code=device_data["starting_code"],
         restricted_digit_mode=device_data["restricted_digit_mode"],
         time_divider=device_data["time_divider"],
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     )
     device_server= DeviceServer(
         starting_code=device_data["starting_code"],
-        key=codecs.decode(device_data["key"], "hex"),
+        key=codecs.encode(device_data["key"], 'hex'),
         starting_count=device_data["token_count"],
         restricted_digit_mode=device_data["restricted_digit_mode"],
         time_divider=device_data["time_divider"],

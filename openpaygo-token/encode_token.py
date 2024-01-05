@@ -24,7 +24,7 @@ class OPAYGOEncoder(object):
                 new_count = count+1
             else:
                 new_count = count+2
-        for xn in range(0, new_count):
+        for x in range(0, new_count):
             current_token = shared.OPAYGOShared.generate_next_token(current_token, key)
         final_token = shared.OPAYGOShared.put_base_in_token(current_token, token_base)
         if restricted_digit_set:
