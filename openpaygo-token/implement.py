@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from encode_token import OPAYGOEncoder
+from decode_token import OPAYGODecoder
 from shared import OPAYGOShared
 from shared_extended import OPAYGOSharedExtended
 import codecs
@@ -31,14 +32,49 @@ class Device:
     def print_status(self):
         print("DEVICE STATUS")
         print(f"Serial Number: {self.serial_number}")
-        print(f"Active: {self.is_active}")
+        print(f"Active: {self.is_active()}")
         print(f"Expiration Date: {self.expiration_date}")
         print(f"Current count: {self.count}")
         print(f"PAYG Enabled:{self.payg_enabled}")
         print("\n")
 
     def is_active(self):
-        return self.expiration_date > datetime.now
+        return self.expiration_date > datetime.now()
+
+    def decode_token(self,token):
+        token_value, token_count, token_type = OPAYGODecoder.get_activation_value_count_and_type_from_token(
+            token=int(token),             #token was generated as string type
+            starting_code=self.starting_code,
+            key=self.key,
+            last_count=self.count,
+            restricted_digit_set= self.restricted_digit_mode,
+            used_counts=self.used_counts,
+        )
+
+        if not token_value:
+            print("Invalid Token")
+            return False
+        if token_value==-2:
+            print("Old Token")
+            return False
+        
+        self.count=token_count
+        self.used_counts =OPAYGODecoder.update_used_counts(
+            past_used_counts=self.used_counts,
+            value=token_value,
+            new_count=token_count,
+            type=token_type,
+        )
+        self.update_device_status(token_value, token_type)
+
+    def update_device_status(self,token_value,token_type):
+        number_of_days = token_value/self.time_divider
+        if token_type == OPAYGOShared.TOKEN_TYPE_SET_TIME:
+            self.expiration_date=datetime.now() + timedelta(days=number_of_days)
+        else:
+            if self.expiration_date<datetime.now():
+                self.expiration_date =datetime.now()
+            self.expiration_date = self.expiration_date + timedelta(days=number_of_days)
 
 class DeviceServer:
     def __init__(
@@ -105,3 +141,12 @@ if __name__ == "__main__":
 
 token = device_server.generate_token(5,OPAYGOShared.TOKEN_TYPE_ADD_TIME)
 print("TOKEN", token) 
+
+#use token on device
+device.decode_token(token=token)
+
+
+print("===STATUS AFTER DECODING TOKEN===")
+device.print_status()
+device_server.print_status()
+print("===END STATUS===")
