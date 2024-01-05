@@ -1,9 +1,10 @@
-import codecs
 from datetime import datetime, timedelta
-#from encode_token import OPAYGOEncoder
-#from shared import OPAYGOShared
-#from shared_extended import OPAYGOSharedExtended
+from encode_token import OPAYGOEncoder
+from shared import OPAYGOShared
+from shared_extended import OPAYGOSharedExtended
+import codecs
 
+OPAYGOEncoder=OPAYGOEncoder()
 
 class Device:
     def __init__(
@@ -25,19 +26,19 @@ class Device:
 
         self.expiration_date = datetime.now()
         self.payg_enabled = True
-
+        self.used_counts = []
 
     def print_status(self):
         print("DEVICE STATUS")
         print(f"Serial Number: {self.serial_number}")
-        print(f"Active: {self.restricted_digit_mode}")
+        print(f"Active: {self.is_active}")
         print(f"Expiration Date: {self.expiration_date}")
         print(f"Current count: {self.count}")
         print(f"PAYG Enabled:{self.payg_enabled}")
         print("\n")
 
-
-
+    def is_active(self):
+        return self.expiration_date > datetime.now
 
 class DeviceServer:
     def __init__(
@@ -61,25 +62,16 @@ class DeviceServer:
         print(f"Current count: {self.count}")
         print(f"Enabled:{self.payg_enabled}")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def generate_token(self,value,mode):
+        self.count, token = OPAYGOEncoder.generate_standard_token(
+            starting_code = self.starting_code,
+            key = self.key,
+            value = value,
+            count= self.count,
+            mode=mode,
+            restricted_digit_set=self.restricted_digit_mode,
+        )
+        return token
 
 if __name__ == "__main__":
     device_data = {#creating a dictionary
@@ -110,3 +102,6 @@ if __name__ == "__main__":
     device.print_status()
     device_server.print_status()
     print("===END INITIAL STATUS===")
+
+token = device_server.generate_token(5,OPAYGOShared.TOKEN_TYPE_ADD_TIME)
+print("TOKEN", token) 
