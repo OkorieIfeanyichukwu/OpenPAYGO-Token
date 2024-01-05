@@ -25,14 +25,17 @@ class OPAYGOShared(object):
     def generate_next_token(cls, last_code, key):
         conformed_token = struct.pack('>L', last_code) # We convert the token to bytes
         conformed_token += conformed_token # We duplicate it to fit the minimum length
-        print(f"key must have length of 16 or 8:length = {len(key)}")
+        #print(f"key must have length of 16 or 8:length = {len(key)}")
         token_hash = siphash.siphash_64(key, conformed_token) # We hash it 
+        #print(f"{token_hash}, {type(token_hash)}")
         new_token = cls._convert_hash_to_token(token_hash) # We convert to token and return
         return new_token
 
     @classmethod
     def _convert_hash_to_token(cls, this_hash):
-        hash_int = struct.pack('>Q', this_hash) # We convert the hash to bytes
+        this_hash= int.from_bytes(this_hash,byteorder='big')
+        #print(this_hash)
+        hash_int = struct.pack('>Q', this_hash) # We package the hashed byte in a byte format
         hi_hash = struct.unpack('>L', hash_int[0:4])[0]  # We split it in two 32bits INT
         lo_hash = struct.unpack('>L', hash_int[4:8])[0]
         result_hash = hi_hash ^ lo_hash # We XOR the two together to get a single 32bits INT

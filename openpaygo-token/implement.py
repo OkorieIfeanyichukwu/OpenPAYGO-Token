@@ -77,7 +77,7 @@ if __name__ == "__main__":
     device_data = {#creating a dictionary
         "serial_number": "ZZZ1",
         "starting_code": 123456789,
-        "key": b"bc41ec9530",                        #bc41ec9530f6dac86b1a29ab82edc5fb
+        "key": b"bc41ec95",                        #bc41ec9530f6dac86b1a29ab82edc5fb
         "restricted_digit_mode": False,
         "time_divider": 1,
         "token_count": 1,
