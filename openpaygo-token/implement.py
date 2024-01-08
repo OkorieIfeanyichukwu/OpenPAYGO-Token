@@ -36,6 +36,7 @@ class Device:
         print(f"Expiration Date: {self.expiration_date}")
         print(f"Current count: {self.count}")
         print(f"PAYG Enabled:{self.payg_enabled}")
+        #print(f"key: {self.key}")
         print("\n")
 
     def is_active(self):
@@ -97,6 +98,7 @@ class DeviceServer:
         print("SERVER STATUS")
         print(f"Current count: {self.count}")
         print(f"Enabled:{self.payg_enabled}")
+        #print(f"key: {self.key}")
 
     def generate_token(self,value,mode):
         self.count, token = OPAYGOEncoder.generate_standard_token(
@@ -113,7 +115,7 @@ if __name__ == "__main__":
     device_data = {#creating a dictionary
         "serial_number": "ZZZ1",
         "starting_code": 123456789,
-        "key": b"bc41ec95",                        #bc41ec9530f6dac86b1a29ab82edc5fb
+        "key": b"bc41ec9530f6dac86b1a29ab82edc5fb",            #bc41ec95 works for codecs.encode while  bc41ec9530f6dac86b1a29ab82edc5fb works for codecs.decode
         "restricted_digit_mode": False,
         "time_divider": 1,
         "token_count": 1,
@@ -129,7 +131,7 @@ if __name__ == "__main__":
     )
     device_server= DeviceServer(
         starting_code=device_data["starting_code"],
-        key=codecs.encode(device_data["key"], 'hex'),
+        key=codecs.decode(device_data["key"], 'hex'),
         starting_count=device_data["token_count"],
         restricted_digit_mode=device_data["restricted_digit_mode"],
         time_divider=device_data["time_divider"],
@@ -140,7 +142,7 @@ if __name__ == "__main__":
     print("===END INITIAL STATUS===")
 
 token = device_server.generate_token(5,OPAYGOShared.TOKEN_TYPE_ADD_TIME)
-print("TOKEN", token) 
+print(f"TOKEN: {token}  the type: {type(token)}") 
 
 #use token on device
 device.decode_token(token=token)
